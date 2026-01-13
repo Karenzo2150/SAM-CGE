@@ -1,0 +1,82 @@
+[PROJECT]
+
+[RP:3REPORT]
+1=r=save\2simulation
+2=
+
+[RP:UNTITLED_1]
+1=
+
+[RP:1DEMSUPMOD]
+1=
+
+[RP:1MMMOD]
+1=
+
+[GDXDISP: QD Var 1]
+PlaneDim=0
+RowDim=1
+Squeeze=1
+Order=1,2
+Decim=7
+PlaneRownr=-1
+SqTrail0=0
+
+[GDXDISP: P0 Par 1]
+PlaneDim=0
+RowDim=1
+Squeeze=1
+Order=1
+Decim=7
+PlaneRownr=-1
+
+[GDXDISP: P Var 1]
+PlaneDim=0
+RowDim=1
+Squeeze=1
+Order=1,2
+Decim=7
+PlaneRownr=-1
+SqTrail0=0
+
+[GDXDISP: Y Var 0]
+PlaneDim=0
+RowDim=0
+Squeeze=1
+Order=1
+Decim=7
+PlaneRownr=-1
+
+[GDXDISP: QD0 Par 1]
+PlaneDim=0
+RowDim=1
+Squeeze=1
+SqTrail0=0
+Order=1
+Decim=7
+PlaneRownr=-1
+
+[RP:EXERCISE 3Q]
+1=gdx=output
+2=
+
+[MRUFILES]
+1=D:\James\3 Current Work\Ghana\3 CGE Project\3 Intro to GAMS\Exercise 3\1mmmod.gms
+2=D:\James\3 Current Work\Ghana\3 CGE Project\3 Intro to GAMS\Exercise 3\1mmmod.ref
+3=D:\James\3 Current Work\Ghana\3 CGE Project\3 Intro to GAMS\Exercise 3\1mmmod.gdx
+4=D:\James\3 Current Work\Ghana\3 CGE Project\3 Intro to GAMS\Exercise 3\1mmmod.log
+5=D:\James\3 Current Work\Ghana\3 CGE Project\3 Intro to GAMS\Exercise 2\1mmmod.gms
+6=D:\James\3 Current Work\Ghana\3 CGE Project\3 Intro to GAMS\Exercise 2\1mmmod.ref
+7=D:\James\3 Current Work\Ghana\3 CGE Project\3 Intro to GAMS\Exercise 2\1mmmod.gdx
+8=D:\James\3 Current Work\Ghana\3 CGE Project\3 Intro to GAMS\Exercise 2\1mmmod.log
+9=D:\James\3 Current Work\Ghana\3 CGE Project\3 Intro to GAMS\Exercise 1\1mmmod.gms
+
+[OPENWINDOW_1]
+FILE0=C:\Users\JTHURLOW\OneDrive - CGIAR\Desktop\Training Course\Advanced CGE Course\2 Exercises\2 Advanced Course\Multi-Market Model\Exercise 3\Exercise 3Q.gms
+FILE1=C:\Users\JTHURLOW\OneDrive - CGIAR\Desktop\Training Course\Advanced CGE Course\2 Exercises\2 Advanced Course\Multi-Market Model\Exercise 3\output.gdx
+FILE2=C:\Users\JTHURLOW\OneDrive - CGIAR\Desktop\Training Course\Advanced CGE Course\2 Exercises\2 Advanced Course\Multi-Market Model\Exercise 3\Exercise 3Q.gms
+MAXIM=0
+TOP=0
+LEFT=0
+HEIGHT=648
+WIDTH=1209

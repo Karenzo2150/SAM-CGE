@@ -1,0 +1,606 @@
+GAMS 41.3.0  0f17a8d6 Nov 28, 2022          WEX-WEI x86 64bit/MS Windows - 12/07/24 01:33:16 Page 1
+Demand-supply multi-market training model (Exercise 2)
+C o m p i l a t i o n
+
+
+   2   
+   3   
+   4  *1. Sets ----------------------------------------------------------------
+   5   
+   6  SETS
+   7   C       commodities     / agr, ind /
+   8  ;
+   9   
+  10   
+  11  *2. Parameters ----------------------------------------------------------
+  12   
+  13  PARAMETERS
+  14  *initialization parameters (read in original data)
+  15   QD0(C)          demand quantity /
+  16           agr     200
+  17           ind     100
+  18   /
+  19   QS0(C)          supply quantity /
+  20           agr     200
+  21           ind     100
+  22   /
+  23   P0(C)           market price /
+  24           agr     1
+  25           ind     1
+  26   /
+  27   w               wage rate       / 1 /
+  28   Y0              income          / 300 /
+  29  *elasticities and intercepts
+  30   s0(C)           supply curve intercept
+  31   s1(C)           price elasticity of supply
+  32   d0(C)           demand curve intercept
+  33   d1(C)           price elasticity of demand
+  34   d2(C)           income elasticity of demand
+  35  ;
+  36   
+  37  *gives values to the various elasticity parameters
+  38  *i.e., slope of curve multiplied by initial price/quantity ratio
+  39   s1(C) = 0.50 * (QS0(C)/P0(C));
+  40   d1(C) = 2.00 * (QD0(C)/P0(C));
+  41   d2(C) = 0.75 * (QD0(C)/Y0);
+  42   
+  43  *calculate intercept parameters for demand and supply curves
+  44   s0(C) = QS0(C) - s1(C)*P0(C);
+  45   d0(C) = QD0(C) + d1(C)*P0(C) - d2(C)*Y0;
+  46   
+  47   
+  48  *3. Variables -----------------------------------------------------------
+  49   
+  50  VARIABLES
+  51   QD(C)           demand quantity
+  52   QS(C)           supply quantity
+  53   P(C)            market price
+  54   Y               income
+  55  ;
+  56   
+  57  *Set the value (level) of variables to initial values
+  58   QD.L(C) = QD0(C);
+  59   QS.L(C) = QS0(C);
+  60   P.L(C)  = P0(C);
+  61   Y.L     = Y0;
+  62   
+  63   
+  64  *4. Equations -----------------------------------------------------------
+  65   
+  66  EQUATIONS
+  67   DEMAND(C)       demand curve
+  68   SUPPLY(C)       supply curve
+  69   INCOME          income
+  70   MKTEQU(C)       market equilibrium
+  71  ;
+  72   
+  73   DEMAND(C)..     QD(C)   =E= d0(C) - d1(C)*P(C) + d2(C)*Y;
+  74   SUPPLY(C)..     QS(C)   =E= s0(C) + s1(C)*P(C);
+  75   INCOME..        Y       =E= SUM(C, w*QS(C) );
+  76   MKTEQU(C)..     QD(C)   =E= QS(C);
+  77   
+  78  *5. Model ---------------------------------------------------------------
+  79   
+  80  MODEL MMMOD      demand-supply model /
+  81   DEMAND
+  82   SUPPLY
+  83   INCOME
+  84   MKTEQU
+  85  /;
+  86   
+  87  SOLVE MMMOD USING MCP;
+  88   
+  89   S0('AGR') = S0('AGR') * 0.8;
+  90   SOLVE MMMOD USING MCP;
+  91   
+  92   
+  93  *Display initial and final values
+  94  DISPLAY d0, d1, s0, s1, QD0, QD.L, QS0, QS.L, P0, P.L;
+
+
+COMPILATION TIME     =        0.015 SECONDS      3 MB  41.3.0 0f17a8d6 WEX-WEI
+GAMS 41.3.0  0f17a8d6 Nov 28, 2022          WEX-WEI x86 64bit/MS Windows - 12/07/24 01:33:16 Page 2
+Demand-supply multi-market training model (Exercise 2)
+Equation Listing    SOLVE MMMOD Using MCP From line 87
+
+
+---- DEMAND  =E=  demand curve
+
+DEMAND(agr)..  QD(agr) + 400*P(agr) - 0.5*Y =E= 450 ; (LHS = 450)
+     
+DEMAND(ind)..  QD(ind) + 200*P(ind) - 0.25*Y =E= 225 ; (LHS = 225)
+     
+
+---- SUPPLY  =E=  supply curve
+
+SUPPLY(agr)..  QS(agr) - 100*P(agr) =E= 100 ; (LHS = 100)
+     
+SUPPLY(ind)..  QS(ind) - 50*P(ind) =E= 50 ; (LHS = 50)
+     
+
+---- INCOME  =E=  income
+
+INCOME..  - QS(agr) - QS(ind) + Y =E= 0 ; (LHS = 0)
+     
+
+---- MKTEQU  =E=  market equilibrium
+
+MKTEQU(agr)..  QD(agr) - QS(agr) =E= 0 ; (LHS = 0)
+     
+MKTEQU(ind)..  QD(ind) - QS(ind) =E= 0 ; (LHS = 0)
+     
+GAMS 41.3.0  0f17a8d6 Nov 28, 2022          WEX-WEI x86 64bit/MS Windows - 12/07/24 01:33:16 Page 3
+Demand-supply multi-market training model (Exercise 2)
+Column Listing      SOLVE MMMOD Using MCP From line 87
+
+
+---- QD  demand quantity
+
+QD(agr)
+                (.LO, .L, .UP, .M = -INF, 200, +INF, 0)
+        1       DEMAND(agr)
+        1       MKTEQU(agr)
+
+QD(ind)
+                (.LO, .L, .UP, .M = -INF, 100, +INF, 0)
+        1       DEMAND(ind)
+        1       MKTEQU(ind)
+
+
+---- QS  supply quantity
+
+QS(agr)
+                (.LO, .L, .UP, .M = -INF, 200, +INF, 0)
+        1       SUPPLY(agr)
+       -1       INCOME
+       -1       MKTEQU(agr)
+
+QS(ind)
+                (.LO, .L, .UP, .M = -INF, 100, +INF, 0)
+        1       SUPPLY(ind)
+       -1       INCOME
+       -1       MKTEQU(ind)
+
+
+---- P  market price
+
+P(agr)
+                (.LO, .L, .UP, .M = -INF, 1, +INF, 0)
+      400       DEMAND(agr)
+     -100       SUPPLY(agr)
+
+P(ind)
+                (.LO, .L, .UP, .M = -INF, 1, +INF, 0)
+      200       DEMAND(ind)
+      -50       SUPPLY(ind)
+
+
+---- Y  income
+
+Y
+                (.LO, .L, .UP, .M = -INF, 300, +INF, 0)
+       -0.5     DEMAND(agr)
+       -0.25    DEMAND(ind)
+        1       INCOME
+
+GAMS 41.3.0  0f17a8d6 Nov 28, 2022          WEX-WEI x86 64bit/MS Windows - 12/07/24 01:33:16 Page 4
+Demand-supply multi-market training model (Exercise 2)
+Range Statistics    SOLVE MMMOD Using MCP From line 87
+
+
+RANGE STATISTICS (ABSOLUTE NON-ZERO FINITE VALUES)
+
+RHS       [min, max] : [ 5.000E+01, 4.500E+02] - Zero values observed as well
+Bound     [min, max] : [        NA,        NA]
+Matrix    [min, max] : [ 2.500E-01, 4.000E+02]
+
+GAMS 41.3.0  0f17a8d6 Nov 28, 2022          WEX-WEI x86 64bit/MS Windows - 12/07/24 01:33:16 Page 5
+Demand-supply multi-market training model (Exercise 2)
+Model Statistics    SOLVE MMMOD Using MCP From line 87
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           4     SINGLE EQUATIONS            7
+BLOCKS OF VARIABLES           4     SINGLE VARIABLES            7
+NON ZERO ELEMENTS            17     NON LINEAR N-Z              0
+CODE LENGTH                   0     CONSTANT POOL              16
+
+
+GENERATION TIME      =        0.000 SECONDS      4 MB  41.3.0 0f17a8d6 WEX-WEI
+GAMS 41.3.0  0f17a8d6 Nov 28, 2022          WEX-WEI x86 64bit/MS Windows - 12/07/24 01:33:16 Page 6
+Demand-supply multi-market training model (Exercise 2)
+Solution Report     SOLVE MMMOD Using MCP From line 87
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MMMOD               
+     TYPE    MCP                 
+     SOLVER  PATH                FROM LINE  87
+
+**** SOLVER STATUS     1 Normal Completion
+**** MODEL STATUS      1 Optimal
+
+ RESOURCE USAGE, LIMIT          0.125 10000000000.000
+ ITERATION COUNT, LIMIT         0    2147483647
+ EVALUATION ERRORS              0             0
+7 row/cols, 17 non-zeros, 34.69% dense.
+
+Path 5.0.04 (Mon Nov 28 10:05:43 2022)
+Written by Todd Munson, Steven Dirkse, Youngdae Kim, and Michael Ferris
+
+INITIAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  3.0000e+02 var: (Y)
+Maximum of F. . . . . . . . . .  0.0000e+00 eqn: (DEMAND(agr))
+Maximum of Grad F . . . . . . .  4.0000e+02 eqn: (DEMAND(agr))
+                                            var: (P(agr))
+
+INITIAL JACOBIAN NORM STATISTICS
+Maximum Row Norm. . . . . . . .  4.0150e+02 eqn: (DEMAND(agr))
+Minimum Row Norm. . . . . . . .  2.0000e+00 eqn: (MKTEQU(agr))
+Maximum Column Norm . . . . . .  5.0000e+02 var: (P(agr))
+Minimum Column Norm . . . . . .  1.7500e+00 var: (Y)
+
+FINAL STATISTICS
+Inf-Norm of Complementarity . .  0.0000e+00 eqn: (DEMAND(agr))
+Inf-Norm of Normal Map. . . . .  0.0000e+00 eqn: (DEMAND(agr))
+Inf-Norm of Minimum Map . . . .  0.0000e+00 eqn: (DEMAND(agr))
+Inf-Norm of Fischer Function. .  0.0000e+00 eqn: (DEMAND(agr))
+Inf-Norm of Grad Fischer Fcn. .  0.0000e+00 eqn: (DEMAND(agr))
+Two-Norm of Grad Fischer Fcn. .  0.0000e+00
+
+FINAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  3.0000e+02 var: (Y)
+Maximum of F. . . . . . . . . .  0.0000e+00 eqn: (DEMAND(agr))
+Maximum of Grad F . . . . . . .  4.0000e+02 eqn: (DEMAND(agr))
+                                            var: (P(agr))
+
+
+---- EQU DEMAND  demand curve
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+agr       450.0000       450.0000       450.0000       200.0000      
+ind       225.0000       225.0000       225.0000       100.0000      
+
+---- EQU SUPPLY  supply curve
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+agr       100.0000       100.0000       100.0000       200.0000      
+ind        50.0000        50.0000        50.0000       100.0000      
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- EQU INCOME              .              .              .             1.0000      
+
+  INCOME  income
+
+---- EQU MKTEQU  market equilibrium
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+agr          .              .              .             1.0000      
+ind          .              .              .           300.0000      
+
+---- VAR QD  demand quantity
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+agr        -INF          200.0000        +INF             .          
+ind        -INF          100.0000        +INF             .          
+
+---- VAR QS  supply quantity
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+agr        -INF          200.0000        +INF             .          
+ind        -INF          100.0000        +INF             .          
+
+---- VAR P  market price
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+agr        -INF            1.0000        +INF             .          
+ind        -INF            1.0000        +INF             .          
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- VAR Y                 -INF          300.0000        +INF             .          
+
+  Y  income
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             0  REDEFINED
+                             0     ERRORS
+GAMS 41.3.0  0f17a8d6 Nov 28, 2022          WEX-WEI x86 64bit/MS Windows - 12/07/24 01:33:16 Page 7
+Demand-supply multi-market training model (Exercise 2)
+Equation Listing    SOLVE MMMOD Using MCP From line 90
+
+
+---- DEMAND  =E=  demand curve
+
+DEMAND(agr)..  QD(agr) + 400*P(agr) - 0.5*Y =E= 450 ; (LHS = 450)
+     
+DEMAND(ind)..  QD(ind) + 200*P(ind) - 0.25*Y =E= 225 ; (LHS = 225)
+     
+
+---- SUPPLY  =E=  supply curve
+
+SUPPLY(agr)..  QS(agr) - 100*P(agr) =E= 80 ; (LHS = 100, INFES = 20 ****)
+     
+SUPPLY(ind)..  QS(ind) - 50*P(ind) =E= 50 ; (LHS = 50)
+     
+
+---- INCOME  =E=  income
+
+INCOME..  - QS(agr) - QS(ind) + Y =E= 0 ; (LHS = 0)
+     
+
+---- MKTEQU  =E=  market equilibrium
+
+MKTEQU(agr)..  QD(agr) - QS(agr) =E= 0 ; (LHS = 0)
+     
+MKTEQU(ind)..  QD(ind) - QS(ind) =E= 0 ; (LHS = 0)
+     
+GAMS 41.3.0  0f17a8d6 Nov 28, 2022          WEX-WEI x86 64bit/MS Windows - 12/07/24 01:33:16 Page 8
+Demand-supply multi-market training model (Exercise 2)
+Column Listing      SOLVE MMMOD Using MCP From line 90
+
+
+---- QD  demand quantity
+
+QD(agr)
+                (.LO, .L, .UP, .M = -INF, 200, +INF, 0)
+        1       DEMAND(agr)
+        1       MKTEQU(agr)
+
+QD(ind)
+                (.LO, .L, .UP, .M = -INF, 100, +INF, 0)
+        1       DEMAND(ind)
+        1       MKTEQU(ind)
+
+
+---- QS  supply quantity
+
+QS(agr)
+                (.LO, .L, .UP, .M = -INF, 200, +INF, 0)
+        1       SUPPLY(agr)
+       -1       INCOME
+       -1       MKTEQU(agr)
+
+QS(ind)
+                (.LO, .L, .UP, .M = -INF, 100, +INF, 0)
+        1       SUPPLY(ind)
+       -1       INCOME
+       -1       MKTEQU(ind)
+
+
+---- P  market price
+
+P(agr)
+                (.LO, .L, .UP, .M = -INF, 1, +INF, 0)
+      400       DEMAND(agr)
+     -100       SUPPLY(agr)
+
+P(ind)
+                (.LO, .L, .UP, .M = -INF, 1, +INF, 0)
+      200       DEMAND(ind)
+      -50       SUPPLY(ind)
+
+
+---- Y  income
+
+Y
+                (.LO, .L, .UP, .M = -INF, 300, +INF, 0)
+       -0.5     DEMAND(agr)
+       -0.25    DEMAND(ind)
+        1       INCOME
+
+GAMS 41.3.0  0f17a8d6 Nov 28, 2022          WEX-WEI x86 64bit/MS Windows - 12/07/24 01:33:16 Page 9
+Demand-supply multi-market training model (Exercise 2)
+Range Statistics    SOLVE MMMOD Using MCP From line 90
+
+
+RANGE STATISTICS (ABSOLUTE NON-ZERO FINITE VALUES)
+
+RHS       [min, max] : [ 5.000E+01, 4.500E+02] - Zero values observed as well
+Bound     [min, max] : [        NA,        NA]
+Matrix    [min, max] : [ 2.500E-01, 4.000E+02]
+
+GAMS 41.3.0  0f17a8d6 Nov 28, 2022          WEX-WEI x86 64bit/MS Windows - 12/07/24 01:33:16 Page 10
+Demand-supply multi-market training model (Exercise 2)
+Model Statistics    SOLVE MMMOD Using MCP From line 90
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           4     SINGLE EQUATIONS            7
+BLOCKS OF VARIABLES           4     SINGLE VARIABLES            7
+NON ZERO ELEMENTS            17     NON LINEAR N-Z              0
+CODE LENGTH                   0     CONSTANT POOL              16
+
+
+GENERATION TIME      =        0.000 SECONDS      4 MB  41.3.0 0f17a8d6 WEX-WEI
+GAMS 41.3.0  0f17a8d6 Nov 28, 2022          WEX-WEI x86 64bit/MS Windows - 12/07/24 01:33:16 Page 11
+Demand-supply multi-market training model (Exercise 2)
+Solution Report     SOLVE MMMOD Using MCP From line 90
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   MMMOD               
+     TYPE    MCP                 
+     SOLVER  PATH                FROM LINE  90
+
+**** SOLVER STATUS     1 Normal Completion
+**** MODEL STATUS      1 Optimal
+
+ RESOURCE USAGE, LIMIT          0.031 10000000000.000
+ ITERATION COUNT, LIMIT         0    2147483647
+ EVALUATION ERRORS              0             0
+7 row/cols, 17 non-zeros, 34.69% dense.
+
+Path 5.0.04 (Mon Nov 28 10:05:43 2022)
+Written by Todd Munson, Steven Dirkse, Youngdae Kim, and Michael Ferris
+
+INITIAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  3.0000e+02 var: (Y)
+Maximum of F. . . . . . . . . .  2.0000e+01 eqn: (SUPPLY(agr))
+Maximum of Grad F . . . . . . .  4.0000e+02 eqn: (DEMAND(agr))
+                                            var: (P(agr))
+
+INITIAL JACOBIAN NORM STATISTICS
+Maximum Row Norm. . . . . . . .  4.0150e+02 eqn: (DEMAND(agr))
+Minimum Row Norm. . . . . . . .  2.0000e+00 eqn: (MKTEQU(agr))
+Maximum Column Norm . . . . . .  5.0000e+02 var: (P(agr))
+Minimum Column Norm . . . . . .  1.7500e+00 var: (Y)
+
+FINAL STATISTICS
+Inf-Norm of Complementarity . .  0.0000e+00 eqn: (DEMAND(agr))
+Inf-Norm of Normal Map. . . . .  0.0000e+00 eqn: (DEMAND(agr))
+Inf-Norm of Minimum Map . . . .  0.0000e+00 eqn: (DEMAND(agr))
+Inf-Norm of Fischer Function. .  0.0000e+00 eqn: (DEMAND(agr))
+Inf-Norm of Grad Fischer Fcn. .  0.0000e+00 eqn: (DEMAND(agr))
+Two-Norm of Grad Fischer Fcn. .  0.0000e+00
+
+FINAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  2.8118e+02 var: (Y)
+Maximum of F. . . . . . . . . .  0.0000e+00 eqn: (DEMAND(agr))
+Maximum of Grad F . . . . . . .  4.0000e+02 eqn: (DEMAND(agr))
+                                            var: (P(agr))
+
+
+---- EQU DEMAND  demand curve
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+agr       450.0000       450.0000       450.0000       182.1176      
+ind       225.0000       225.0000       225.0000        99.0588      
+
+---- EQU SUPPLY  supply curve
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+agr        80.0000        80.0000        80.0000       182.1176      
+ind        50.0000        50.0000        50.0000        99.0588      
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- EQU INCOME              .              .              .             1.0212      
+
+  INCOME  income
+
+---- EQU MKTEQU  market equilibrium
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+agr          .              .              .             0.9812      
+ind          .              .              .           281.1765      
+
+---- VAR QD  demand quantity
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+agr        -INF          182.1176        +INF             .          
+ind        -INF           99.0588        +INF             .          
+
+---- VAR QS  supply quantity
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+agr        -INF          182.1176        +INF             .          
+ind        -INF           99.0588        +INF             .          
+
+---- VAR P  market price
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+agr        -INF            1.0212        +INF             .          
+ind        -INF            0.9812        +INF             .          
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- VAR Y                 -INF          281.1765        +INF             .          
+
+  Y  income
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             0  REDEFINED
+                             0     ERRORS
+GAMS 41.3.0  0f17a8d6 Nov 28, 2022          WEX-WEI x86 64bit/MS Windows - 12/07/24 01:33:16 Page 12
+Demand-supply multi-market training model (Exercise 2)
+E x e c u t i o n
+
+
+----     94 PARAMETER d0  demand curve intercept
+
+agr 450.000,    ind 225.000
+
+
+----     94 PARAMETER d1  price elasticity of demand
+
+agr 400.000,    ind 200.000
+
+
+----     94 PARAMETER s0  supply curve intercept
+
+agr 80.000,    ind 50.000
+
+
+----     94 PARAMETER s1  price elasticity of supply
+
+agr 100.000,    ind  50.000
+
+
+----     94 PARAMETER QD0  demand quantity
+
+agr 200.000,    ind 100.000
+
+
+----     94 VARIABLE QD.L  demand quantity
+
+agr 182.118,    ind  99.059
+
+
+----     94 PARAMETER QS0  supply quantity
+
+agr 200.000,    ind 100.000
+
+
+----     94 VARIABLE QS.L  supply quantity
+
+agr 182.118,    ind  99.059
+
+
+----     94 PARAMETER P0  market price
+
+agr 1.000,    ind 1.000
+
+
+----     94 VARIABLE P.L  market price
+
+agr 1.021,    ind 0.981
+
+
+
+EXECUTION TIME       =        0.266 SECONDS      4 MB  41.3.0 0f17a8d6 WEX-WEI
+
+
+USER: MUD - 70 User License                          G220422|0002CV-GEN
+      Int Food Policy Research Institute, IFPRI, Computer ServiceDC2119
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\JTHURLOW\OneDrive - CGIAR\Desktop\Training Course\Advanced CGE Course\2 Exercises\2 Advanced Course\
+           Multi-Market Model\Exercise 2\Exercise 2Q.gms
+Output     C:\Users\JTHURLOW\OneDrive - CGIAR\Desktop\Training Course\Advanced CGE Course\2 Exercises\2 Advanced Course\
+           Multi-Market Model\Exercise 2\Exercise 2Q.lst

@@ -1,0 +1,46 @@
+B 3 C o m p i l a t i o n
+B 96 Equation Listing    SOLVE MMMOD Using MCP From line 77
+D 99 DEMAND
+D 106 SUPPLY
+D 113 MKTEQU
+B 121 Column Listing      SOLVE MMMOD Using MCP From line 77
+E 124 QD
+E 137 QS
+E 150 P
+B 164 Range Statistics    SOLVE MMMOD Using MCP From line 77
+B 175 Model Statistics    SOLVE MMMOD Using MCP From line 77
+B 189 Solution Report     SOLVE MMMOD Using MCP From line 77
+F 210 DEMAND
+F 217 SUPPLY
+F 224 MKTEQU
+G 231 QD
+G 238 QS
+G 245 P
+B 260 Equation Listing    SOLVE MMMOD Using MCP From line 83
+D 263 DEMAND
+D 270 SUPPLY
+D 277 MKTEQU
+B 285 Column Listing      SOLVE MMMOD Using MCP From line 83
+E 288 QD
+E 301 QS
+E 314 P
+B 328 Range Statistics    SOLVE MMMOD Using MCP From line 83
+B 339 Model Statistics    SOLVE MMMOD Using MCP From line 83
+B 353 Solution Report     SOLVE MMMOD Using MCP From line 83
+F 374 DEMAND
+F 381 SUPPLY
+F 388 MKTEQU
+G 395 QD
+G 402 QS
+G 409 P
+B 424 E x e c u t i o n
+I 424 d0
+I 430 d1
+I 435 s0
+I 440 s1
+I 445 QD0
+I 450 QD
+I 455 QS0
+I 460 QS
+I 465 P0
+I 470 P

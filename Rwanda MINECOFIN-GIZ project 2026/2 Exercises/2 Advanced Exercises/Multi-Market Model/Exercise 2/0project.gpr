@@ -1,0 +1,97 @@
+[PROJECT]
+
+[RP:3REPORT]
+1=r=save\2simulation
+2=
+
+[RP:UNTITLED_1]
+1=
+
+[RP:1DEMSUPMOD]
+1=
+
+[RP:1MMMOD]
+1=
+
+[RP:EXERCISE 2A]
+1=
+
+[RP:EXERCISE 1Q]
+1=GDX=OUTPUT
+2=
+
+[GDXDISP: QD Var 1]
+PlaneDim=0
+RowDim=1
+Squeeze=1
+Order=1,2
+Decim=7
+PlaneRownr=-1
+SqTrail0=0
+
+[GDXDISP: P0 Par 1]
+PlaneDim=0
+RowDim=1
+Squeeze=1
+Order=1
+Decim=7
+PlaneRownr=-1
+
+[GDXDISP: P Var 1]
+PlaneDim=0
+RowDim=1
+Squeeze=1
+Order=1,2
+Decim=7
+PlaneRownr=-1
+SqTrail0=0
+
+[GDXDISP: Y Var 0]
+PlaneDim=0
+RowDim=0
+Squeeze=1
+Order=1
+Decim=7
+PlaneRownr=-1
+
+[RP:EXERCISE 2Q]
+1=gdx=output
+2=
+
+[GDXDISP: QS Var 1]
+PlaneDim=0
+RowDim=1
+Squeeze=1
+SqTrail0=0
+Order=1,2
+Decim=7
+PlaneRownr=-1
+
+[GDXDISP: QD0 Par 1]
+PlaneDim=0
+RowDim=1
+Squeeze=1
+SqTrail0=0
+Order=1
+Decim=7
+PlaneRownr=-1
+
+[MRUFILES]
+1=D:\Documents and Settings\jamest\Desktop\Intro to GAMS\Solutions\Exercise 2A.gms
+2=D:\Documents and Settings\jamest\Desktop\Intro to GAMS\Exercise 2\Exercise 2A.lst
+3=D:\Documents and Settings\jamest\Desktop\Intro to GAMS\Exercise 2\1mmmod.gms
+4=D:\James\3 Current Work\Ghana\3 CGE Project\3 Intro to GAMS\Exercise 2\1mmmod.gms
+5=D:\James\3 Current Work\Ghana\3 CGE Project\3 Intro to GAMS\Exercise 2\1mmmod.ref
+6=D:\James\3 Current Work\Ghana\3 CGE Project\3 Intro to GAMS\Exercise 2\1mmmod.gdx
+7=D:\James\3 Current Work\Ghana\3 CGE Project\3 Intro to GAMS\Exercise 2\1mmmod.log
+8=D:\James\3 Current Work\Ghana\3 CGE Project\3 Intro to GAMS\Exercise 1\1mmmod.gms
+
+[OPENWINDOW_1]
+FILE0=C:\Users\JTHURLOW\OneDrive - CGIAR\Desktop\Training Course\Advanced CGE Course\2 Exercises\2 Advanced Course\Multi-Market Model\Exercise 2\Exercise 2Q.gms
+FILE1=C:\Users\JTHURLOW\OneDrive - CGIAR\Desktop\Training Course\Advanced CGE Course\2 Exercises\2 Advanced Course\Multi-Market Model\Exercise 2\output.gdx
+FILE2=C:\Users\JTHURLOW\OneDrive - CGIAR\Desktop\Training Course\Advanced CGE Course\2 Exercises\2 Advanced Course\Multi-Market Model\Exercise 2\output.gdx
+MAXIM=0
+TOP=0
+LEFT=0
+HEIGHT=820
+WIDTH=880
