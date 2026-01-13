@@ -1,0 +1,478 @@
+$STITLE Input file: Country data set. Standard CGE modeling system, Version 1.01
+
+PARAMETER
+ SCALE           SCALING PARAMETER FOR SAM (MULTIPLIER) / 0.001000 /
+;
+
+*--------------------------------------------------------------------------------------------
+*1. SET DEFINITIONS
+*--------------------------------------------------------------------------------------------
+
+*Read in set definitions from Excel file (1model.xls) --------------
+
+*Model data (full set of activities and households)
+$call "gdxxrw i=1model.xlsx index=index!a7"
+$gdxin 1model.gdx
+*Load sets
+$load AC A AAGR AMIN AIND ASER C CAGR CMIN CIND CSER F FA FLAB FCAP FLND INS INSD INSDNG EN H HURB HRUR CTD CTE CTM FACNEST MAC
+$gdxout
+
+ ACES(A)                = NO;
+ ALEO(A)$(NOT ACES(A))  = YES;
+ ANAGR(A)               = NOT AAGR(A);
+ CNAGR(C)               = NOT CAGR(C);
+ ACNT(AC)               = YES;
+ ACNT('TOTAL')          = NO;
+
+*--------------------------------------------------------------------------------------------
+*2. SAM
+*--------------------------------------------------------------------------------------------
+
+*Load Social Accounting Matrix (SAM)
+$load SAM
+
+
+SET TAXES(AC) / ATAX, CTAX, DTAX, ETAX, FTAX, MTAX, STAX, VTAX, XTAX /;
+
+*Merge sales taxes with VAT and excise duties
+ SAM('STAX',C) = SAM('STAX',C) + SAM('MTAX',C) + SAM('VTAX',C) + SAM('XTAX',C);
+ SAM('MTAX',C) = 0;
+ SAM('VTAX',C) = 0;
+ SAM('XTAX',C) = 0;
+*Rename customs duties
+ SAM('MTAX',C) = SAM('CTAX',C);
+ SAM('CTAX',C) = 0;
+*Recalculate total tax payments to government
+ SAM('GOV',TAXES) = SUM(ACNT, SAM(TAXES,ACNT));
+
+*Merge private and public investment
+ SAM('G-I','S-I') = 0;
+ SAM('S-I',ACNT) = SAM('S-I',ACNT) + SAM('G-I',ACNT);
+ SAM(ACNT,'S-I') = SAM(ACNT,'S-I') + SAM(ACNT,'G-I');
+ SAM('G-I',ACNT) = 0;
+ SAM(ACNT,'G-I') = 0;
+
+*Remove household purchases of travel debits and credits
+ SAM('ROW',H) = SAM('ROW',H) + SAM('CTRDC',H);
+ SAM('CTRDC','ROW') = SAM('CTRDC','ROW') + SUM(H, SAM('CTRDC',H));
+ SAM('CTRDC',H) = 0;
+
+ SAM('CMORE','DSTK') = 0;
+
+ SAM(AC,ACP)$(ABS(SAM(AC,ACP)) LT 1E-10) = 0;
+
+SET
+ REMEXP(C)       remove exports with small shares /
+  cspot, ccass, croot, cpeas, csoya, cteal, ctoba, ccatt, csmlr, coliv, cfuel, cchar, cfore, cfish, cmeat, calco, cclay, celec, cvehr, chotl, cofsv, crent, creal, clegl, cheal, ccult, carts, cosrv
+chony
+cngas
+cfsea
+cptob
+cpetr
+cphar
+cmach
+cvehi
+crepr
+ /
+ REMIMP(C)       remove imports with small shares /
+   croot, cpeas, csoya, cteal, ctoba, ccatt, csmlr, coliv, cfuel, cchar, cfore, cfish, cmeat, calco, cclay, celec, cvehr, chotl, cofsv, crent, creal, clegl, cheal, ccult, carts, cosrv
+cspot
+cbean
+ccoff
+csugr
+cinfo
+ /
+ REEXPORT(C)     remove imports with re-export problem  /
+   coils, chunt, cfsea, cfoil, cvehi, crepr, cpetr
+ /
+ NETEXP(C)       net out exports /
+  ctrdc
+cwhea
+cocer
+  /
+ NETIMP(C)       net out imports /
+
+*cvege
+*cbans
+*cocrp
+  /
+;
+
+*Net exports (reduce imports by export value)
+ SAM('ROW',NETEXP) = SAM('ROW',NETEXP) - SAM(NETEXP,'ROW');
+ SAM(NETEXP,'ROW') = 0;
+ SAM('ETAX',NETEXP) = 0;
+ SAM('GOV','ETAX')  = SUM(C, SAM('ETAX',C));
+*Net imports (reduce exports by import value)
+ SAM('ROW',NETIMP) = SAM('ROW',NETIMP) - SAM(NETIMP,'ROW');
+ SAM(NETIMP,'ROW') = 0;
+ SAM('MTAX',NETIMP) = 0;
+ SAM('GOV','MTAX')  = SUM(C, SAM('MTAX',C));
+ SAM('ROW','GOV')   = 0;
+ SAM('ROW','GOV')   = SUM(ACNT, SAM(ACNT,'ROW')-SAM('ROW',ACNT));
+
+*Move exports to changes in inventories
+ SAM(REMEXP,'DSTK') = SAM(REMEXP,'DSTK') + SAM(REMEXP,'ROW');
+ SAM('DSTK','S-I')  = SAM('DSTK','S-I') + SUM(REMEXP, SAM(REMEXP,'ROW'));
+ SAM('S-I','ROW')   = SAM('S-I','ROW') + SUM(REMEXP, SAM(REMEXP,'ROW'));
+ SAM(REMEXP,'ROW')  = 0;
+*Move imports to changes in inventories
+ SAM('ROW',REMIMP) = SAM('ROW',REMIMP) + SAM('MTAX',REMIMP);
+ SAM('MTAX',REMIMP) = 0;
+ SAM(REMIMP,'DSTK') = SAM(REMIMP,'DSTK') - SAM('ROW',REMIMP);
+ SAM('DSTK','S-I')  = SAM('DSTK','S-I') - SUM(REMIMP, SAM('ROW',REMIMP));
+ SAM('S-I','ROW')   = SAM('S-I','ROW') - SUM(REMIMP, SAM('ROW',REMIMP));
+ SAM('ROW',REMIMP)  = 0;
+ SAM('GOV','MTAX')  = SUM(C, SAM('MTAX',C));
+ SAM('ROW','GOV')   = 0;
+ SAM('ROW','GOV')   = SUM(ACNT, SAM(ACNT,'ROW')-SAM('ROW',ACNT));
+*Move trade transactions costs to domestic costs
+ SAM(CTD,REMEXP) = SAM(CTD,REMEXP) + SUM(CTE, SAM(CTE,REMEXP));
+ SAM(CTD,REMIMP) = SAM(CTD,REMIMP) + SUM(CTM, SAM(CTM,REMIMP));
+ SAM(CTE,REMEXP) = 0;
+ SAM(CTM,REMIMP) = 0;
+ SAM(C,CTM)$SUM(CP, SAM(CP,CTM)) = SAM(C,CTM)/SUM(CP, SAM(CP,CTM)) * SUM(ACNT, SAM(CTM,ACNT));
+ SAM(C,CTD)$SUM(CP, SAM(CP,CTD)) = SAM(C,CTD)/SUM(CP, SAM(CP,CTD)) * SUM(ACNT, SAM(CTD,ACNT));
+ SAM(C,CTE)$SUM(CP, SAM(CP,CTE)) = SAM(C,CTE)/SUM(CP, SAM(CP,CTE)) * SUM(ACNT, SAM(CTE,ACNT));
+*Move import tariffs to sales taxes
+ SAM('STAX',REMIMP) = SAM('STAX',REMIMP) + SAM('MTAX',REMIMP);
+ SAM('MTAX',REMIMP) = 0;
+ SAM('GOV','STAX')    = SUM(ACNT, SAM('STAX',ACNT));
+ SAM('GOV','DTAX')    = SUM(ACNT, SAM('DTAX',ACNT));
+*Remove any small imbalances that remain
+ SAM(C,'DSTK') = SUM(ACNT, SAM(ACNT,C) - SAM(C,ACNT)) + SAM(C,'DSTK');
+ SAM('DSTK','S-I') = SUM(ACNT, SAM(ACNT,'DSTK'));
+ SAM('S-I','ROW') = SAM('S-I','ROW') + SUM(ACNT, SAM(ACNT,'S-I')-SAM('S-I',ACNT));
+
+*Remove re-exports from SAM (eliminates exports by reducing imports)
+ SAM('ROW',REEXPORT) = SAM('ROW',REEXPORT) - SAM(REEXPORT,'ROW') + SUM(A, SAM(A,REEXPORT));
+ SAM(REEXPORT,'ROW') = SUM(A, SAM(A,REEXPORT));
+
+*Compute margins
+PARAMETER
+ EXPX(C)
+ IMPX(C)
+ DOMX(C)
+ TRSHR(C)
+;
+
+ SAM('TRC',C) = SAM('TRD',C) + SAM('TRE',C) + SAM('TRM',C) + SAM('TRC',C);
+ SAM(C,'TRC') = SAM(C,'TRD') + SAM(C,'TRE') + SAM(C,'TRM') + SAM(C,'TRC');
+ SAM('TRD',C) = 0;
+ SAM('TRE',C) = 0;
+ SAM('TRM',C) = 0;
+ SAM(C,'TRD') = 0;
+ SAM(C,'TRE') = 0;
+ SAM(C,'TRM') = 0;
+
+ EXPX(C) = SAM(C,'ROW');
+ IMPX(C) = SAM('ROW',C);
+ DOMX(C) = SUM(A, SAM(A,C));
+ DOMX('CPETR') = 0;
+
+ IMPX(C)$(IMPX(C)+DOMX(C)) = IMPX(C) + IMPX(C)/(IMPX(C)+DOMX(C)) * SAM('TRC',C);
+ DOMX(C)$(IMPX(C)+DOMX(C)) = DOMX(C) + DOMX(C)/(IMPX(C)+DOMX(C)) * SAM('TRC',C);
+ DOMX(C)$DOMX(C) = SUM(ACNT, SAM(C,ACNT)) - EXPX(C) - IMPX(C);
+ TRSHR(C)$SUM(CP, SAM(CP,'TRC')) = SAM(C,'TRC')/SUM(CP, SAM(CP,'TRC'));
+
+ SAM(CTE,C)$(EXPX(C) + IMPX(C) + DOMX(C)) = EXPX(C) / (EXPX(C) + IMPX(C) + DOMX(C)) * SAM('TRC',C);
+ SAM(CTM,C)$(EXPX(C) + IMPX(C) + DOMX(C)) = IMPX(C) / (EXPX(C) + IMPX(C) + DOMX(C)) * SAM('TRC',C);
+ SAM(CTD,C)$(EXPX(C) + IMPX(C) + DOMX(C)) = DOMX(C) / (EXPX(C) + IMPX(C) + DOMX(C)) * SAM('TRC',C);
+ SAM(C,CTE) = TRSHR(C) * SUM(CP, SAM(CTE,CP));
+ SAM(C,CTM) = TRSHR(C) * SUM(CP, SAM(CTM,CP));
+ SAM(C,CTD) = TRSHR(C) * SUM(CP, SAM(CTD,CP));
+
+ SAM('TRC',AC) = 0;
+ SAM(AC,'TRC') = 0;
+
+*Account totals are recomputed. Check for SAM balance.
+
+ SAM('TOTAL',AC) = 0;
+ SAM(AC,'TOTAL') = 0;
+
+ SAM('TOTAL',AC) = SUM(ACNT, SAM(ACNT,AC));
+ SAM(AC,'TOTAL') = SUM(ACNT, SAM(AC,ACNT));
+
+ SAMBALCHK(AC)   = SAM('TOTAL',AC) - SAM(AC,'TOTAL');
+ SAMBALCHK(AC)$(ABS( SAMBALCHK(AC)) LT 1E-6) = 0;
+
+
+ DISPLAY "Read in SAM", SAMBALCHK;
+ DISPLAY "Read in SAM", SAM;
+
+ SAM(AC,ACP) =  SAM(AC,ACP) * SCALE;
+
+*If account balances exceed a critical maximum value, SAMBAL.INC will
+*balance the SAM exactly.
+*$INCLUDE SAMBAL.INC
+
+*Defining CINV using SAM data with potential user input.
+
+$ontext
+*!!
+In the model, there are two ways of separating stock changes from fixed
+investment:
+
+a. If the SAM includes the account S-I (in its column making payments to
+commodities for fixed investments and an aggregate payment to DSTK for
+stock changes) and DSTK (in its row paid by S-I, in its column making
+payments, positive or negative, to commodities, representing stock
+change values), then no user action is needed -- the set CINV will by
+default include all elements in C that receive payments from S-I.
+
+b. If, the account DSTK does not appear in the SAM, then the set CINV
+should only include the commodities that receive payments from S-I for
+fixed investment; commodities receiving payments for stock changes
+should be excluded. The default is that all commodities receiving
+payments are included; the user may exclude selected commodities from
+CINV. (An example of how to do this is provided just below.)
+
+$offtext
+
+*All commodities receiving payments from S-I are included in the set CINV.
+*Note: Negative payments are for stock changes and should be treated
+*as such.
+ CINV(C)$SAM(C,'S-I') = YES;
+
+*!!- User option to exclude selected commodities from the set CINV. Only
+*relevant for SAMs without the account DSTK.
+*Example:
+*If the set C includes a commodity called CWHEAT and payments in the cell
+*SAM('CWHEAT','S-I') are for stock changes, the user should include
+*the following line in the program:
+* CINV('CWHEAT')  = NO;
+
+DISPLAY CINV;
+
+*--------------------------------------------------------------------------------------------
+*3. ELASTICITIES
+*--------------------------------------------------------------------------------------------
+
+$ontext
+!!- In this section, the user inputs elasticities for trade, production,
+and household consumption. If the user does not supply all required
+data, missing data will be generated in STDMOD.GMS using simple
+assumptions.
+$offtext
+
+*Trade elasticities -----------------------------
+
+*SIGMAQ is the elasticity of substitution between imports
+*and domestic output in domestic demand.
+*SIGMAT is the elasticity of transformation for domestic
+*marketed output between exports and domestic supplies.
+
+SET
+ TRDELAS  trade elasticities
+ /
+ SIGMAQ  Armington elasticity
+ SIGMAT  CET elasticity
+ /
+
+ PRDELAS  production elasticities
+ /
+ PRODELAS
+ PRODELAS2
+ /
+;
+
+PARAMETER
+ TRADELAS(AC,TRDELAS)    Armington and CET elasticities by commodity
+ PRODELAS(A)             Elas of substit bt. factors - bottom of technology nest
+ PRODELASTAB(A,PRDELAS)
+ PRODELAS2(A)            Elas of substit bt. agg fac & intermed - top of tech nest
+ PRODELAS3(F,A)
+ ELASAC(C)               Output aggregation elasticity for commodity C
+;
+
+*Load trade elasticities
+$load TRADELAS PRODELASTAB
+
+ PRODELAS(A)     = PRODELASTAB(A,'PRODELAS');
+ PRODELAS2(A)    = PRODELASTAB(A,'PRODELAS2');
+ PRODELAS3(F,A)  = 1.5;
+ ELASAC(C)       = 15.0;
+
+*Household consumption elasticities -------------------------------
+*Note: The Frisch parameter is included in this section.
+
+PARAMETERS
+ LESELAS1(C,H)    LES demand elasticities
+ FRISCH(H)        Frisch parameter for household LES demand
+ LESELAS2(A,C,H)  Exp'e elasticity of home dem by com - act - hhd
+;
+
+$load LESELAS1
+
+*If LES elasticity missing in data then assign default value
+ LESELAS1(C,H)$(NOT LESELAS1(C,H)) = 0.9;
+
+ LESELAS2(A,C,H) =  1.9;
+ FRISCH(H)       = -1.0;
+
+*Nested factor demand mappings -----------------------------------------------------
+
+*Calculate all direct and indirect nested factors beneath each aggregate factor
+ FACTREE(F,FA)$(SMAX(FP, FACNEST(F,FP)) GT SMAX(FP, FACNEST(FP,FA))) = 1;
+ FACTREE(F,FA)$(FACNEST(F,FA) EQ SMAX(FP, FACNEST(FP,FA))) = 1;
+
+*Assign disaggregated factors to existing factors set
+ FD(F)$SAM(F,'TOTAL') = YES;
+
+ FNEST(F,FP)$FACNEST(FP,F) = YES;
+ FTREE(F,FP,FPP)$(FD(FPP) AND FACTREE(FPP,FP) AND FNEST(F,FP)) = YES;
+ FTREE(F,FP,FP)$(FD(FP) AND FNEST(F,FP)) = YES;
+
+*set default to true if SAM is true
+ MFA1(F,A)$SAM(F,A) = YES;
+*set all nested factors to false
+ MFA1(F,A)$SUM(FA, FACTREE(F,FA)) = NO;
+*set active labor category for top layer
+ MFA1(FA,A)$(SMAX(F, FACNEST(F,FA)) EQ 1) = YES;
+
+*1st lower VA level (from top)
+ MFA2(F,FP,A)$(FNEST(F,FP) AND SUM(FPP$(FTREE(F,FP,FPP) AND NOT FA(FPP)), SAM(FPP,A))) = YES;
+
+*Prevent nested functions for non-active activities
+ MFA1(F,A)$(NOT SAM('TOTAL',A))    = NO;
+ MFA2(F,FP,A)$(NOT SAM('TOTAL',A)) = NO;
+ MFA1(FA,A)$(NOT SUM(FP, MFA2(FA,FP,A))) = NO;
+
+DISPLAY MFA1, MFA2;
+
+
+*--------------------------------------------------------------------------------------------
+*4. PHYSICAL FACTOR QUANTITIES AND FACTOR MARKET STRUCTURES
+*--------------------------------------------------------------------------------------------
+
+$ontext
+!!: If you have data on physical factor DEMANDS, add them in this
+section. If so, there is no need to include supply quantities --
+the model code in STDMOD.GMS will not use the supply information.
+
+If data are provided for SUPPLY quantities (but not for demand), the
+model code in STDMOD.GMS will define disaggregated activity demand
+quantities for each factor as:
+(total factor supply) TIMES (activity share in total activity payments
+to the factor).
+This amounts to assuming that, for each factor, wages are uniform across
+activities. The data on factor payments are from the SAM.
+
+If you don't have any data on physical factor quantities, leave
+this section blank.
+$offtext
+
+SET
+ AL                 labor data activities
+ MALA(AL,A)         mapping between labor data and sam activities
+;
+
+PARAMETER
+ EMPCHOICE          employment is based on wages (1) employment data (2) or SAM (3)    / 3 /
+*initial employment numbers
+ QFINPUT(A,AC)     sectoral employment data
+ WFINPUT(AL,AC)     sectoral wage data
+ YFINPUT(AL,AC)     implied sectoral income data
+ SAMSHR(F,A)        share of detailed value added for aggregate sectoral employment data
+ QFSBASE(AC)        total employment data
+ QFBASE(F,A)        sectoral employment
+;
+
+$load AL MALA QFINPUT WFINPUT
+
+IF(EMPCHOICE EQ 1,
+ QFBASE(FLAB,A)$SAM(FLAB,A) = SAM(FLAB,A) / SUM(AL$MALA(AL,A), WFINPUT(AL,FLAB)/1000);
+);
+
+IF(EMPCHOICE EQ 2,
+ SAMSHR(FLAB,A)$SUM((AP,AL)$(MALA(AL,A) AND MALA(AL,AP)), SAM(FLAB,AP)) = SAM(FLAB,A) / SUM((AP,AL)$(MALA(AL,A) AND MALA(AL,AP)), SAM(FLAB,AP));
+ QFBASE(FLAB,A) = SAMSHR(FLAB,A) * QFINPUT(A,FLAB);
+ SAMSHR(FLND,A)$SUM((AP,AL)$(MALA(AL,A) AND MALA(AL,AP)), SAM(FLND,AP)) = SAM(FLND,A) / SUM((AP,AL)$(MALA(AL,A) AND MALA(AL,AP)), SAM(FLND,AP));
+ QFBASE(FLND,A) = SAMSHR(FLND,A) * QFINPUT(A,FLND);
+);
+
+IF(EMPCHOICE EQ 3,
+ QFBASE(FLAB,A) = SAM(FLAB,A);
+ QFBASE(FLND,A) = SAM(FLND,A);
+);
+
+ QFBASE(FLND,A)$SAM(FLND,A) = QFINPUT(A,FLND)/1000;
+
+ QFSBASE(F) = SUM(A, QFBASE(F,A));
+
+
+DISPLAY QFINPUT, WFINPUT, SAMSHR;
+
+
+*--------------------------------------------------------------------------------------------
+*5. COMMODITY VALUE SHARES FOR HOME CONSUMPTION
+*--------------------------------------------------------------------------------------------
+
+$ontext
+!!-User input is needed only if the SAM includes household home
+consumption, reflected in payments from households to activities, and
+if these activities produce multiple outputs.
+
+If this condition is met, the user should define the parameter SHRHOME,
+using extraneous data on commodity value shares which, for each
+household-activity combination, should sum to unity.
+
+In the absence of user input, the program will compute these value
+shares in the file STDMOD.GMS, using the OUTPUT value shares for
+each commodity. (For single-output activities, the computed shares
+will quite correctly be at unity.)
+
+Note that elasticities are needed for the parameter LESELAS2(A,C,H)
+(above in the elasticity section) for the identified combinations
+$offtext
+
+PARAMETER
+ shrhome(A,C,H) value share for comm'y c in home cons of hhd h from act a
+ ;
+
+*!!: If needed, manually define shrhome.
+ shrhome(A,C,H) = 0;
+
+
+*--------------------------------------------------------------------------------------------
+*6. INITIALIZATION OF TAX DATA
+*--------------------------------------------------------------------------------------------
+
+$ontext
+!!: In this section, the user HAS TO supply the names of the tax accounts
+in the SAM into the definition of TAXPAR. In STDMOD.GMS, TAXPAR is used
+for model calibration. A proper definition of TAXPAR is necessary for
+the functioning of the model if the SAM includes taxes.
+$offtext
+
+SET
+ TX  taxes in the model
+ /
+ INSTAX         direct taxes on domestic institutions
+ FACTAX         direct factor taxes
+ IMPTAX         import taxes
+ EXPTAX         export taxes
+ VATAX          value-added taxes
+ ACTTAX         taxes on activity revenue
+ COMTAX         taxes on commodity sales in domestic market
+ /
+;
+
+PARAMETER
+ TAXPAR(TX,AC)   payment by account ac to tax account tx
+ ;
+
+*direct taxes on domestic institutions
+ TAXPAR('INSTAX',INSD)  = SAM('DTAX',INSD);
+*direct factor taxes
+ TAXPAR('FACTAX',F)     = SAM('FTAX',F);
+*import taxes
+ TAXPAR('IMPTAX',C)     = SAM('MTAX',C);
+*export taxes
+ TAXPAR('EXPTAX',C)     = SAM('ETAX',C);
+*value-added taxes
+ TAXPAR('VATAX',A)      = 0;
+*taxes on activity revenue
+ TAXPAR('ACTTAX',A)     = SAM('ATAX',A);
+*taxes on commodity sales in domestic market
+ TAXPAR('COMTAX',C)     = SAM('STAX',C);

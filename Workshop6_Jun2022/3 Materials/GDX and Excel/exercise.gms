@@ -1,0 +1,68 @@
+$TITLE Exercise on using GDX to import and export data
+
+$ontext
+ Goals:
+  1 Import original SAM from Excel
+  2 Aggregate original SAM to new SAM accounts
+  3 Export new SAM to Excel
+
+ Instructions:
+  . Fill in missing code (marked ???)
+  . Fill in missing entries in the Excel file "exercise.xlsx" (check sheets "index" and "sets")
+  . Check that your new SAM matches the one in red on the sheet "NSAM"
+$offtext
+
+SETS
+ OAC             original SAM accounts
+ NAC             new SAM accounts
+ MAP(NAC,OAC)    mapping from original to new accounts
+;
+
+ALIAS (OAC,OACP), (NAC,NACP);
+
+PARAMETER
+ OSAM(OAC,OACP)  original SAM data
+ NSAM(NAC,NACP)   new SAM data
+;
+
+*Step1: Import from Excel
+execute 'xlstalk.exe -s exercise.xlsx';
+$call "gdxxrw i=exercise.xlsx o=import.gdx index=index!a5"
+$gdxin import.gdx
+$load NAC OAC
+$loaddc OSAM SAM
+$gdxin
+
+*Step 2: Aggregate original SAM to new SAM accounts
+ NSAM(NAC,NACP) = SUM((OAC,OACP)$(MAP(NAC,OAC) AND MAP(NACP,OACP)), OSAM(OAC,OACP));
+
+*Step 4: Export new parameter back to Excel
+execute_unload "export.gdx" NSAM
+execute 'gdxxrw.exe i=export.gdx o=exercise.xlsx index=index!a15';
+execute 'xlstalk.exe -o exercise.xlsx';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
