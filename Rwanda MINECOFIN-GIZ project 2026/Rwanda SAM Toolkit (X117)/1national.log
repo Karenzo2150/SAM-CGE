@@ -1,0 +1,45 @@
+
+--- Job 1national.gms Start 02/03/26 08:47:04 35.1.0 r82a9585 WEX-WEI x86 64bit/MS Windows
+--- Applying:
+    C:\GAMS\35\gmsprmNT.txt
+    C:\Users\EARAGIE\OneDrive - CGIAR\Documents\GAMS\gamsconfig.yaml
+--- GAMS Parameters defined
+    Input "C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\Rwanda SAM Toolkit (X117)\1national.gms"
+    Save "C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\Rwanda SAM Toolkit (X117)\national.g0?"
+    PageWidth 120
+    PageSize 0
+    PageContr 3
+    Action CE
+    ScrDir "C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\Rwanda SAM Toolkit (X117)\225a\"
+    SysDir C:\GAMS\35\
+    WorkDir "C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\Rwanda SAM Toolkit (X117)\"
+    LogOption 3
+    DFormat 0
+    TFormat 0
+    License C:\GAMS\35\gamslice.txt
+    ErrorLog 99
+    IDE 1
+    GDX "C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\Rwanda SAM Toolkit (X117)\national.gdx"
+Licensee: MUD - 70 User License                          G210405|0002CV-GEN
+          International Food Policy Research Institute, Computer ServDC2119
+          C:\GAMS\35\gamslice.txt
+          License Admin: John Hanly, J.Hanly@cgiar.org                     
+GAMS 35.1.0   Copyright (C) 1987-2021 GAMS Development. All rights reserved
+--- Starting compilation
+--- 1national.gms(8) 2 Mb
+--- call gdxxrw i=1RWA_X104_2017.xlsx o=1RWA_X104_2017.gdx index=index!a7
+
+GDXXRW           35.1.0 r82a9585 Released Apr 29, 2021 WEI x86 64bit/MS Window
+Input file : C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\Rwanda SAM Toolkit (X117)\1RWA_X104_2017.xlsx
+Output file: C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\Rwanda SAM Toolkit (X117)\1RWA_X104_2017.gdx
+Substituting Index
+Total time = 9453 Ms
+--- 1national.gms(9) 2 Mb
+--- GDXin=C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\Rwanda SAM Toolkit (X117)\1RWA_X104_2017.gdx
+--- GDX File ($gdxIn) C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\Rwanda SAM Toolkit (X117)\1RWA_X104_2017.gdx
+--- 1national.gms(121) 3 Mb
+--- Starting execution: elapsed 0:00:10.131
+--- 1national.gms(121) 4 Mb
+--- GDX File C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\Rwanda SAM Toolkit (X117)\national.gdx
+*** Status: Normal completion
+--- Job 1national.gms Stop 02/03/26 08:47:14 elapsed 0:00:10.172
