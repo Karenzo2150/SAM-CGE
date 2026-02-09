@@ -1,0 +1,175 @@
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 WEX-WEI x86 64bit/MS Windows - 02/05/26 04:41:59 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  *s=national gdx=national
+   2  *NEXUS 58 sector SAM Building Toolkit
+   3  *Step 1: National SAM with aggregate household and labor account
+   4   
+   7   
+   8  *$call "xlstalk -s %national%.xlsx"
+GDXIN   C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\1 Lectures\Bi-weekly Meetings\2026-01-13 - SAMs and SAM Toolkit\SAM Toolkit (2017)\1NAT_X104_2017.gdx
+  11   
+  12  SET
+  13  *SAM sets
+  14   AC              micro SAM accounts
+  15   ACNT(AC)        micro SAM accounts without total
+  16   A(AC)           activities
+  17   C(AC)           commodities
+  18   F(AC)           factors
+  19   T(AC)           taxes
+  20  *Data sets
+  21   MAC             macro SAM accounts
+  22   MACNT(MAC)      macro SAM accounts without total
+  23   SAC             supply use table accounts
+  24  *Mappings
+  25   MAPAC(A,C)      activity to commodity
+  26   MAPMAC(MAC,AC)  macro to micro
+  27  ;
+  28   
+--- LOAD  MAC = 1:mac
+--- LOAD  SAC = 2:sac
+--- LOAD  AC = 3:ac
+--- LOAD  A = 4:a
+--- LOAD  C = 5:c
+--- LOAD  F = 6:f
+--- LOAD  T = 7:t
+--- LOAD  MAPAC = 8:mapac
+--- LOAD  MAPMAC = 9:mapmac
+  31   
+  32   ACNT(AC) = YES;
+  33   ACNT('TOTAL') = NO;
+  34   
+  35   MACNT(MAC) = YES;
+  36   MACNT('MTOT') = NO;
+  37   
+  38  ALIAS (MAC,MACP), (MACNT,MACNTP), (AC,ACP), (ACNT,ACNTP), (A,AP), (C,CP), (F,FP), (T,TP);
+  39   
+  40  PARAMETER
+  41   SCALE           scaling multiplier      / 1.000 /
+  42   SAM(AC,ACP)     micro SAM
+  43  *Data parameters
+  44   MSAM(MAC,MACP)  macro SAM
+  45   SUT(C,SAC)      supply-use table
+  46   USE(AC,A)       use table
+  47   SUPPLY(A,C)     supply table
+  48  *Checking balances
+  49   MSAMX(MAC,MACP) reconstructed macro SAM
+  50   DIFF(AC)        micro SAM row and column differences
+  51   MDIFF(MAC,MACP) differences between original and reconstructed macro SAMs
+  52   
+  53  ;
+  54   
+--- LOAD  MSAM = 10:msam
+--- LOAD  SUT = 11:sut
+--- LOAD  USE = 12:use
+--- LOAD  SUPPLY = 13:supply
+  56   
+  57  *Activities -----------
+  58   
+  59  *Production
+  60   SAM(ACNT,A) = USE(ACNT,A);
+  61  *Activity taxes (producer taxes less subsidies)
+  62   SAM('ATAX',A)$SUM(C, SUT(C,'TAX_PRD')) = SUM(C$MAPAC(A,C), SUT(C,'TAX_PRD')/SUM(CP, SUT(CP,'TAX_PRD'))) * MSAM('MATX','MACT');
+  63  *Marketed supply
+  64   SAM(A,C) = SUPPLY(A,C);
+  65   SAM(A,C)$MAPAC(A,C) = SAM(A,C) + SUM(ACNT, SAM(ACNT,A)-SAM(A,ACNT));
+  66   
+  67   
+  68  *Commodities ----------
+  69   
+  70  *Final demand and imports
+  71   SAM(C,'HHD')$SUM(CP, SUT(CP,'CON_PRV')) = SUT(C,'CON_PRV')/SUM(CP, SUT(CP,'CON_PRV')) * MSAM('MCOM','MHHD');
+  72   SAM(C,'GOV')$SUM(CP, SUT(CP,'CON_PUB')) = SUT(C,'CON_PUB')/SUM(CP, SUT(CP,'CON_PUB')) * MSAM('MCOM','MGOV');
+  73   SAM(C,'S-I')$SUM(CP, SUT(CP,'INV_DEM')) = SUT(C,'INV_DEM')/SUM(CP, SUT(CP,'INV_DEM')) * MSAM('MCOM','MS-I');
+  74   SAM(C,'G-I')$SUM(CP, SUT(CP,'INV_GOV')) = SUT(C,'INV_GOV')/SUM(CP, SUT(CP,'INV_GOV')) * MSAM('MCOM','MG-I');
+  75   SAM(C,'DSTK')$SUM(CP, SUT(CP,'INV_STK')) = SUT(C,'INV_STK')/SUM(CP, SUT(CP,'INV_STK')) * MSAM('MCOM','MSTK');
+  76   SAM(C,'ROW')$SUM(CP, SUT(CP,'TRD_EXP')) = SUT(C,'TRD_EXP')/SUM(CP, SUT(CP,'TRD_EXP')) * MSAM('MCOM','MROW');
+  77   SAM('ROW',C)$SUM(CP, SUT(CP,'TRD_IMP')) = SUT(C,'TRD_IMP')/SUM(CP, SUT(CP,'TRD_IMP')) * MSAM('MROW','MCOM');
+  78  *Transaction cost margins
+  79   SAM('TRC',C) = SUT(C,'TRC_REC');
+  80   SAM(C,'TRC') = SUT(C,'TRC_PAY');
+  81  *Commodity taxes (product taxes less subsidies)
+  82   SAM('CTAX',C)$SUM(CP, SUT(CP,'TAX_IMP'))  = SUT(C,'TAX_IMP')/SUM(CP, SUT(CP,'TAX_IMP'))   * MSAM('MCTX','MCOM');
+  83   SAM('ETAX',C)$SUM(CP, SUT(CP,'TAX_EXP'))  = SUT(C,'TAX_EXP')/SUM(CP, SUT(CP,'TAX_EXP'))   * MSAM('METX','MCOM');
+  84   SAM('MTAX',C)$SUM(CP, SUT(CP,'TAX_EXM'))  = SUT(C,'TAX_EXM')/SUM(CP, SUT(CP,'TAX_EXM'))   * MSAM('MMTX','MCOM');
+  85   SAM('STAX',C)$SUM(CP, SUT(CP,'TAX_SAL'))  = SUT(C,'TAX_SAL')/SUM(CP, SUT(CP,'TAX_SAL'))   * MSAM('MSTX','MCOM');
+  86   SAM('VTAX',C)$SUM(CP, SUT(CP,'TAX_VAT'))  = SUT(C,'TAX_VAT')/SUM(CP, SUT(CP,'TAX_VAT'))   * MSAM('MVTX','MCOM');
+  87   SAM('XTAX',C)$SUM(CP, SUT(CP,'TAX_EXD'))  = SUT(C,'TAX_EXD')/SUM(CP, SUT(CP,'TAX_EXD'))   * MSAM('MXTX','MCOM');
+  88   
+  89  *Other accounts -------
+  90   
+  91   SAM(ACNT,ACNTP)$(NOT A(ACNT) AND NOT A(ACNTP) AND NOT C(ACNT) AND NOT C(ACNTP))
+  92           = SUM((MACNT,MACNTP)$(MAPMAC(MACNT,ACNT) AND MAPMAC(MACNTP,ACNTP)), MSAM(MACNT,MACNTP));
+  93   
+  94  *Check balances -------
+  95   
+  96   SAM('TOTAL',ACNT) = SUM(ACNTP, SAM(ACNTP,ACNT));
+  97   SAM(ACNT,'TOTAL') = SUM(ACNTP, SAM(ACNT,ACNTP));
+  98   DIFF(ACNT) = SAM('TOTAL',ACNT) - SAM(ACNT,'TOTAL');
+  99   DIFF(ACNT)$(ABS(DIFF(ACNT)) LT 1E-6) = 0;
+ 100   
+ 101   MSAMX(MAC,MACP) = SUM((AC,ACP)$(MAPMAC(MAC,AC) AND MAPMAC(MACP,ACP)), SAM(AC,ACP));
+ 102   MDIFF(MAC,MACP) = MSAMX(MAC,MACP) - MSAM(MAC,MACP);
+ 103   MDIFF(MAC,MACP)$(ABS(MDIFF(MAC,MACP)) LT 1E-6) = 0;
+ 104   
+ 105   OPTION MDIFF:0, DIFF:0;
+ 106   DISPLAY MDIFF, DIFF;
+ 107   
+ 108   
+ 109  PARAMETER
+ 110   CHKNEG(AC,ACP)
+ 111  ;
+ 112   
+ 113   CHKNEG(A,C)$(SAM(A,C) LT 0) = 1/0;
+ 114   CHKNEG(C,A)$(SAM(C,A) LT 0) = 1/0;
+ 115   CHKNEG(F,A)$(SAM(F,A) LT 0) = 1/0;
+ 116   CHKNEG(A,'HHD')$(SAM(A,'HHD') LT 0) = 1/0;
+ 117  * CHKNEG(C,'HHD')$(SAM(C,'HHD') LT 0) = 1/0;
+ 118   CHKNEG(C,'S-I')$(SAM(C,'S-I') LT 0) = 1/0;
+ 119   CHKNEG(C,'GOV')$(SAM(C,'GOV') LT 0) = 1/0;
+ 120   CHKNEG(C,'ROW')$(SAM(C,'ROW') LT 0) = 1/0;
+ 121  * CHKNEG('ROW',C)$(SAM('ROW',C) LT 0) = 1/0;
+ 122   CHKNEG('TRC',C)$(SAM('TRC',C) LT 0) = 1/0;
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 WEX-WEI x86 64bit/MS Windows - 02/05/26 04:41:59 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\1 Lectures\Bi-weekly Meetings\2026-01-13 - SAMs and SAM Toolkit\SAM Toolkit (2017)\1national.gms
+     2        9 CALL           1       9  gdxxrw i=1NAT_X104_2017.xlsx o=1NAT_X104_2017.gdx index=index!a7
+     3       10 GDXIN          1      10  C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\1 Lectures\Bi-weekly Meetings\2026-01-13 - SAMs and SAM Toolkit\SAM Toolkit (2017)\1NAT_X104_2017.gdx
+
+
+COMPILATION TIME     =        3.219 SECONDS      3 MB  35.1.0 r82a9585 WEX-WEI
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 WEX-WEI x86 64bit/MS Windows - 02/05/26 04:41:59 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+----    106 PARAMETER MDIFF  differences between original and reconstructed macro SAMs
+
+                      ( ALL          0. )
+
+
+----    106 PARAMETER DIFF  micro SAM row and column differences
+
+csorg -9.78192E-2,    cmaiz          -4,    cwhea          -3,    crice           4,    cocer           2,    cipot -3.29789E-1,    cspot -3.70991E-3,    ccass           4,    croot -5.93070E-1,    cbean -4.94769E-1,    cpeas           3,    cvege 1.343504E-1,    cbanb           4,    cbanc -4.38423E-1,    cbans          -2,    cfrui          -3,    cgnut -1.04898E-2,    csoya -1.24646E-1,    coils 3.091763E-1,    ccoff          -9,    cteal -7.47824E-1,    ctoba 6.664148E-2,    csugr           4,    cpyre 1.950054E-2,    cocrp          -6,    ccatt          -8,    csmlr          15,    cpoul -8.85122E-1,    coliv -2.31340E-1,    cmilk          -2,    ceggs -8.66686E-1,    chony 1.039728E-1,    chunt          -1,    cfuel          -3,    cchar           1,    cfore           5,    cfish 6.991790E-1,    cngas -9.79273E-2,    cmore 5.245964E-2,    comin 3.893565E-1,    cmeat 3.356144E-1,    cfsea 5.855951E-2,    cfveg 4.909200E-2,    cfoil 8.171590E-1,    cdair 1.577170E-1,    cgmll -3.34119E-1,    cbake 3.318818E-1,    cfeed -2.30469E-1,    cfood          -3,    calco           2,    cbeve 2.887545E-1,    cptob -5.76698E-1,    ctext           2,    cwood 3.147443E-2,    cprnt -1.07283E-1,    cpetr          -8,    cchem          -2,    cphar -4.26299E-1,    cprub 9.262501E-1,    cnmet          -2,    cceme           2,    cclay 9.793099E-1,    cmetl -1.05801E-1,    cmach          -1,    cvehi -4.72949E-1,    cfurn -1.32438E-1,    coman -4.32866E-2,    crepr -8.06272E-2,    celec 6.904841E-1,    cwatr -1.92881E-2,    cwast 5.577567E-3,    ccons          -4,    cvehr          -5,    cveht -8.89408E-1,    ctrdw           3,    ctrdr           6,    ctrnl           3,    ctrna          -2,    ctrns 1.667725E-2,    cpost 1.641110E-2,    chotl           3,    cpubl -9.72177E-1,    ccomm           1,    cinfo 4.647303E-2,    cbank 3.463025E-1,    cinsu 3.455883E-1,    cofsv 5.795064E-1,    crent           3,    creal -4.45040E-1,    clegl 3.707950E-2,    cenga 1.747711E-1,    cprod           2,    ctrvl 2.319082E-1,    cobsv 5.018402E-1,    cpadm -1.19232E-2,    ceduc           1,    cheal 9.283619E-1,    csocw -1.19486E-1,    ccult 1.233205E-1,    carts 4.549235E-1,    cosrv           3,    cdsrv 1.955912E-1,    ctrdc          -1,    s-i            -1
+
+
+
+EXECUTION TIME       =        0.015 SECONDS      4 MB  35.1.0 r82a9585 WEX-WEI
+
+
+USER: MUD - 70 User License                          G220422|0002CV-GEN
+      Int Food Policy Research Institute, IFPRI, Computer ServiceDC2119
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\1 Lectures\Bi-weekly Meetings\2026-01-13 - SAMs and SAM Toolkit\SAM Toolkit (2017)\1national.gms
+Output     C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\1 Lectures\Bi-weekly Meetings\2026-01-13 - SAMs and SAM Toolkit\SAM Toolkit (2017)\1national.lst
+Save       C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\1 Lectures\Bi-weekly Meetings\2026-01-13 - SAMs and SAM Toolkit\SAM Toolkit (2017)\national.g0?

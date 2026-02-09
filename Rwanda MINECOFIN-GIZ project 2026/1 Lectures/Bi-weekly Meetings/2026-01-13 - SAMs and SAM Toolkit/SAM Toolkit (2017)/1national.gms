@@ -1,3 +1,4 @@
+*s=national gdx=national
 *NEXUS 58 sector SAM Building Toolkit
 *Step 1: National SAM with aggregate household and labor account
 

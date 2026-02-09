@@ -1,3 +1,4 @@
+*r=households s=final
 $TITLE Cross Entropy SAM Estimation August 2003
 $OFFSYMLIST OFFSYMXREF OFFUPPER
 $ONEMPTY

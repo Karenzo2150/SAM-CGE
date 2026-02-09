@@ -1,3 +1,4 @@
+*r=national
 $TITLE Cross Entropy SAM Estimation August 2003
 $OFFSYMLIST OFFSYMXREF OFFUPPER
 $ONEMPTY
@@ -62,6 +63,7 @@ SETS
  FBS(A) / abank,ainsu,aofsv,arent,areal,alegl,aenga,aprod,atrvl,aobsv /
  GOV(A) / apadm,aeduc,aheal,asocw /
  OSV(A) / acult,aarts,aosrv,adsrv,atrdc /
+ 
  MACAGG(ac,acp,macro) Macro aggregator matrix
  AMAC(MACRO)      additive error for macro constraints
  LMAC(MACRO)      multiplicative error for macro constraints
@@ -222,7 +224,7 @@ EQUATIONS
  TSAM0(acnt,"TOTAL")   = sum(acntp, TSAM0(acnt,acntp));
  SAMBALCHK(ACNT)$ACBAL(ACNT) = TSAM0('TOTAL',ACNT) - TSAM0(ACNT,'TOTAL');
 
- display " tsam0 before balancing", tsam0, sambalchk ;
+ display " tsam0 before balancing", tsam0, sambalchk;
 
 *Define column sums that can be constrained.
 *Might want to exclude columns with only one entry. Or, alternatively,
@@ -396,7 +398,7 @@ EQUATIONS
 *Initialize values from TSAM0
  MACTOTAL0(macro)           = SUM((irow,icol)$MACAGG(irow,icol,macro),
                               TSAM0(irow,icol)) ;
- Display  mactotal0 ;
+ Display  mactotal0, ESTIMATE ;
 
 *Set error  bounds and support sets. Assume a prior on standard deviation
 *of the errors, sigma.
@@ -584,7 +586,7 @@ $ontext
   wbar3(acnt,acntp,"5")  =   1/72;
 $offtext
 
- Display sigmay1, sigmay2, sigmay3;
+ Display sigmay1, sigmay2, sigmay3, icol2;
  Display vbar1, vbar2, vbar3;
 
 *######################## DEFINE MODEL ############################
@@ -705,11 +707,11 @@ Parameters
  SAMBALCHK(ACNT)          = SAMCE('TOTAL',ACNT) - SAMCE(ACNT,'TOTAL');
  SAMBALCHK(ACNT)$(ABS(SAMBALCHK(ACNT)) LT 1E-6) = 0;
 
- display " SAMCE after balancing", samce ;
+ display " SAMCE after balancing", samce;
  display " SAMBALCHK after balancing", sambalchk ;
 
  SEM = Sum((acnt,acntp), SQR(COEFF.L(acnt,acntp) - coeff0(acnt,acntp)))/SQR(9);
-
+*r=national
 $ontext
  NormEntrop             = SUM((acnt,acntp)$((coeff0(acnt,acntp) gt 0)
                                    and (ACOEF.L(acnt,acntp) gt 0)),
@@ -721,7 +723,7 @@ $offtext
 
 
 
- display SEM, SAMCE, VALDIFF, PERDIFF, bigdiffp, DENTROPY.L, SAMBALCHK;
+ display SEM, SAMCE, VALDIFF, PERDIFF, bigdiffp, DENTROPY.L, SAMBALCHK , ERR1.L   ;
 
 
  SAM(AC,ACP) = SAMCE(AC,ACP)/SCALE;

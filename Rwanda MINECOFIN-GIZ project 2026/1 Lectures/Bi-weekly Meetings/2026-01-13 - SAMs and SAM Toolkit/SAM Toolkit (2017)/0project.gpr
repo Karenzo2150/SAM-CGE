@@ -667,7 +667,7 @@ PlaneRownr=-1
 
 [GDXDISP: SUT Par 2]
 PlaneDim=0
-RowDim=2
+RowDim=1
 Squeeze=1
 SqTrail0=0
 Order=1,2
@@ -712,41 +712,84 @@ Order=1,2
 Decim=7
 PlaneRownr=-1
 
-[RP:4BALANCE]
-1=r=households s=final
-2=r=households s=households
-3=r=households
-4=
+[GDXDISP: MDIFF Par 2]
+PlaneDim=0
+RowDim=2
+Squeeze=1
+SqTrail0=0
+Order=1,2
+Decim=7
+PlaneRownr=-1
 
-[RP:3HOUSEHOLDS]
-1=s=households gdx=households
-2=
+[GDXDISP: SCALE Par 0]
+PlaneDim=0
+RowDim=0
+Squeeze=1
+SqTrail0=0
+Order=
+Decim=7
+PlaneRownr=-1
+
+[GDXDISP: SUPPLY Par 2]
+PlaneDim=0
+RowDim=2
+Squeeze=1
+SqTrail0=0
+Order=1,2
+Decim=7
+PlaneRownr=-1
+
+[GDXDISP: USE Par 2]
+PlaneDim=0
+RowDim=1
+Squeeze=1
+SqTrail0=0
+Order=1,2
+Decim=7
+PlaneRownr=-1
+
+[GDXDISP: DIFF Par 1]
+PlaneDim=0
+RowDim=1
+Squeeze=1
+SqTrail0=0
+Order=1
+Decim=7
+PlaneRownr=-1
 
 [RP:1NATIONAL]
 1=s=national gdx=national
 2=s=national
 3=
 
+[RP:3HOUSEHOLDS]
+1=s=households gdx=households
+2=
+
+[RP:4BALANCE]
+1=r=households s=final
+2=r=households s=households
+3=r=households
+4=
+
+[OPENWINDOW_1]
+MAXIM=0
+TOP=5
+LEFT=-20
+HEIGHT=623
+WIDTH=1109
+
 [RP:2BALANCE]
 1=r=national
 2=
 
 [MRUFILES]
-1=C:\Users\EARAGIE\Dropbox (IFPRI)\Rwanda SAM CGE Training\Rwanda SAM Recap Session\Rwanda SAM (Version 3)\3households.gms
-2=C:\Users\EARAGIE\Dropbox (IFPRI)\Rwanda SAM CGE Training\Rwanda SAM Recap Session\Rwanda SAM (Version 3)\2balance.gms
-3=C:\Users\EARAGIE\Dropbox (IFPRI)\Rwanda SAM CGE Training\Rwanda SAM Recap Session\Rwanda SAM (Version 3)\1national.gms
-4=A:\Dropbox (IFPRI)\Desktop\Rwanda SAM (Version 2)\4balance.lst
-5=A:\Dropbox (IFPRI)\Desktop\Rwanda SAM (Version 2)\households.gdx
-6=A:\Dropbox (IFPRI)\Desktop\Rwanda SAM Recap Session 1\Rwanda SAM (Final Version)\4balance.gms
-7=A:\Dropbox (IFPRI)\Desktop\Rwanda SAM Recap Session 1\Rwanda SAM (Final Version)\3households.gms
-8=A:\Dropbox (IFPRI)\Desktop\Rwanda SAM Recap Session 1\Rwanda SAM (Final Version)\2balance.gms
-9=A:\Dropbox (IFPRI)\Desktop\Rwanda SAM Recap Session 1\Rwanda SAM (Final Version)\1national.gms
-
-[OPENWINDOW_1]
-FILE0=C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\1 Lectures\Bi-weekly Meetings\2026-01-13 - SAMs and SAM Toolkit\SAM Toolkit (2017)\1national.gms
-FILE1=C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\1 Lectures\Bi-weekly Meetings\2026-01-13 - SAMs and SAM Toolkit\SAM Toolkit (2017)\1national.gms
-MAXIM=0
-TOP=0
-LEFT=0
-HEIGHT=740
-WIDTH=1278
+1=C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\1 Lectures\Bi-weekly Meetings\2026-01-13 - SAMs and SAM Toolkit\SAM Toolkit (2017)\2balance.gms
+2=C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\1 Lectures\Bi-weekly Meetings\2026-01-13 - SAMs and SAM Toolkit\SAM Toolkit (2017)\national.gdx
+3=C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\1 Lectures\Bi-weekly Meetings\2026-01-13 - SAMs and SAM Toolkit\SAM Toolkit (2017)\4balance.gms
+4=C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\1 Lectures\Bi-weekly Meetings\2026-01-13 - SAMs and SAM Toolkit\SAM Toolkit (2017)\3households.gms
+5=C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\1 Lectures\Bi-weekly Meetings\2026-01-13 - SAMs and SAM Toolkit\SAM Toolkit (2017)\2balance.lst
+6=C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\1 Lectures\Bi-weekly Meetings\2026-01-13 - SAMs and SAM Toolkit\SAM Toolkit (2017)\1national.gms
+7=C:\Users\EARAGIE\IFPRI Dropbox\Emerta Aragie\Rwanda MINECOFIN-GIZ project 2026\1 Lectures\Bi-weekly Meetings\2026-01-13 - SAMs and SAM Toolkit\SAM Toolkit (2017)\0output.gdx
+8=C:\Users\EARAGIE\Dropbox (IFPRI)\Rwanda SAM CGE Training\Rwanda SAM Recap Session\Rwanda SAM (Version 3)\3households.gms
+9=C:\Users\EARAGIE\Dropbox (IFPRI)\Rwanda SAM CGE Training\Rwanda SAM Recap Session\Rwanda SAM (Version 3)\2balance.gms
