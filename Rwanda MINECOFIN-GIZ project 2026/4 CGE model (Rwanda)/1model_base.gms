@@ -580,3 +580,5 @@ $offtext
 
 *Base solution reports
 $include includes\base\base_report.inc
+
+display C, A, H, F;

@@ -219,6 +219,7 @@ $gdxin
 
 *Percentage deviation
  r_MACROTAB(SINDP,SIMNB)$SIMC(SIMNB) = (r_MACROTAB(SINDP,SIMNB)/r_MACROTAB(SINDP,'BASE') - 1) * 100;
+*r_MACROTAB(SINDP,SIMNB)$SIMC(SIMNB) = r_MACROTAB(SINDP,SIMNB);
 
 *Percentage-point deviation  
  r_MACROTAB(SINDDEV,SIMNB)$SIMC(SIMNB) = r_MACROTAB(SINDDEV,SIMNB) - r_MACROTAB(SINDDEV,'BASE');
@@ -231,15 +232,15 @@ $gdxin
 *--- GDP at factor cost ---
 
 *Real values
- x_GDPFC(RA,SIMC)  = SUM(A$MAPRA(RA,A), PVA0(A)*(1-TV0(A))*x_QVA(A,SIMC));
+ x_GDPFC(RA,SIMC)  = SUM(A$MAPRA(RA,A), PVA0(A) * (1-TV0(A)) * x_QVA(A,SIMC));
 
 *Real shares
- r_GDPFCs(RA,SIMC)  = x_GDPFC(RA,SIMC) / SUM(A, PVA0(A)*(1-TV0(A))*x_QVA(A,SIMC)) * 100;
+ r_GDPFCs(RA,SIMC)  = x_GDPFC(RA,SIMC) / SUM(A, PVA0(A) * (1-TV0(A)) * x_QVA(A,SIMC)) * 100;
  r_GDPFCs(RA,SIMNB) = r_GDPFCs(RA,SIMNB) - r_GDPFCs(RA,'BASE'); 
 
 *Percentage deviation
  r_GDPFCp(RA,SIMC)$x_GDPFC(RA,'BASE') = (X_GDPFC(RA,SIMC)/X_GDPFC(RA,'BASE')-1) * 100;
- r_GDPFCp(RA,'BASE') = r_GDPFCs(RA,'BASE');
+*r_GDPFCp(RA,'BASE') = r_GDPFCs(RA,'BASE');
  
 *--- GDP at market prices ---
 
@@ -277,6 +278,7 @@ $gdxin
 
 *Percentage deviation
  r_GDPMPp(NRAC,RD,SIMC)$x_GDPMP(NRAC,RD,'BASE') = (x_GDPMP(NRAC,RD,SIMC)/x_GDPMP(NRAC,RD,'BASE')-1) * 100;
+*r_GDPMPp(NRAC,RD,SIMC)$x_GDPMP(NRAC,RD,'BASE') = x_GDPMP(NRAC,RD,SIMC);
  r_GDPMPp(NRAC,RD,'BASE')                       = r_GDPMPs(NRAC,RD,'BASE');
  
 

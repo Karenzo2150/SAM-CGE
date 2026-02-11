@@ -138,13 +138,6 @@
         {
             "codecMib": 106,
             "encoding": "UTF-8",
-            "file": "0control.gdx",
-            "name": "0control.gdx",
-            "type": "gdx"
-        },
-        {
-            "codecMib": 106,
-            "encoding": "UTF-8",
             "file": "0control.gms",
             "name": "0control.gms",
             "type": "gms"
@@ -197,6 +190,20 @@
             "file": "3report_stat.gms",
             "name": "3report_stat.gms",
             "type": "gms"
+        },
+        {
+            "codecMib": 106,
+            "encoding": "UTF-8",
+            "file": "data.gdx",
+            "name": "data.gdx",
+            "type": "gdx"
+        },
+        {
+            "codecMib": 106,
+            "encoding": "UTF-8",
+            "file": "report.gdx",
+            "name": "report.gdx",
+            "type": "gdx"
         }
     ],
     "options": [
